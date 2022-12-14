@@ -25,9 +25,12 @@ public class CarParkSystem {
     }
 
 
-    public void deleteEmployee(String id) {
+    public void deleteEmployee(String id) throws Exception {
         Employee e = searchEmployee(id);
         if (e != null) {
+            for (Permit permit : e.getPermits()) {
+                this.deletePermit(permit.getPermitNr());
+            }
             employeeList.remove(e);
             System.out.println("Delete employee successfully");
         } else {
@@ -39,10 +42,22 @@ public class CarParkSystem {
     public void addEmployee(String id, String name, String phone) throws Exception {
         if (searchEmployee(id) == null) {
             employeeList.put(id, new Employee(id, name, phone));
-            System.out.println("Add employee successfully");
+//            System.out.println("Add employee successfully");
         } else {
             throw new Exception("Add employee: " + id + ", " + name + ", " + phone + " failed\n" + "This employee already exist");
         }
+    }
+    public void terminatePermit(String permitNr) throws Exception {
+        Permit permit = this.searchPermit(permitNr, "");
+        if (permit == null) {
+            throw new Exception("This permit does not exist, cannot terminate");
+
+        }
+
+        // Remove employee has this permit
+        permit.getOwner().deletePermit(permit);
+//        e.deletePermit(permit);
+        this.permitList.remove(permit);
     }
 
     public void changeEmployeePhone(String id, String phone) throws Exception {
@@ -57,11 +72,14 @@ public class CarParkSystem {
 
     public void addPermit(String permitNr, String regNr, String id) throws Exception {
         Employee e = searchEmployee(id);
+
         if (e != null && searchPermit(permitNr, regNr) == null) {
             Permit p = new Permit(permitNr, regNr, e);
+
+            if (e.canAddPermit() == false) throw new Exception("Add permit: " + permitNr + ", " + regNr + " failed because Id already have 2 permit");
             e.addPermit(new Permit(permitNr, regNr, e));
             permitList.add(p);
-            System.out.println("Add permit successfully");
+//            System.out.println("Add permit successfully");
         } else {
             throw new Exception("Add permit: " + permitNr + ", " + regNr + " failed");
         }
@@ -93,7 +111,11 @@ public class CarParkSystem {
             throw new Exception("Failed to replace permit");
         }
     }
-
+    public String getEmployeeInfor(String id) {
+        Employee e = this.searchEmployee(id);
+        if (e != null) return e.toString();
+        return "";
+    }
     public void getEmployeeDetail(String permitNr) {
         String result = "";
         Permit p = searchPermit(permitNr, null);

@@ -12,7 +12,7 @@ public class Employee {
         this.name = name;
         this.phone = phone;
     }
-	
+
 	public void addPermit(Permit permit){
         permits.add(permit);
     }
@@ -38,5 +38,14 @@ public class Employee {
     public String getPhone(){
         return phone;
     }
-
+    public ArrayList<Permit> getPermits(){
+        return this.permits;
+    }
+    @Override
+    public String toString() {
+        return "ID: " + this.id + " ,Name: " + this.name + ", phone: " + this.phone;
+    }
+    public Boolean canAddPermit() {
+        return this.permits.size() < 2;
+    }
 }
